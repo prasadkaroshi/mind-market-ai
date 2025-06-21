@@ -1,0 +1,41 @@
+# Python
+# -------------------------------------------------------------------
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# IDE and Editor Folders
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Project-specific ignores
+# -------------------------------------------------------------------
+# Ignore all generated data, models, and downloaded files
+data/raw/
+data/processed/
+models/
+*.xlsx
+*.joblib
+
+# Ignore runtime logs and lock files
+batch_log.txt
+batch_process.lock
+failed_tickers_log.csv
+full_analysis_results.csv
+
+# Ignore secrets file (best practice if you ever use a .env file for local testing)
+.env
