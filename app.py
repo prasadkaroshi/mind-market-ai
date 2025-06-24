@@ -1,4 +1,4 @@
-# app.py (Final - with Secrets Management & Corrected Search Logic)
+# app.py (Final - with Secrets Management, Corrected Search, and Integrated AI Prediction)
 
 import streamlit as st
 from pathlib import Path
@@ -11,7 +11,14 @@ import re
 import math
 from typing import Dict, Any, Optional
 
-from data_manager import get_or_update_data
+# --- IMPORTS for AI Prediction ---
+import joblib
+from predictor import make_prediction
+from run_training import get_or_update_data_and_model
+# ---
+
+# This import is no longer needed directly by app.py, but we leave it for clarity
+from data_manager import get_or_update_data 
 from config import MODELS_DIR
 
 # 1. Page config must be the first Streamlit command
@@ -219,7 +226,7 @@ with st.sidebar:
     if total_weight != 100: st.warning(f"Total weight should be 100%, currently {total_weight}%.")
     user_weights = {"Valuation": weight_valuation, "Profitability & Growth": weight_profitability, "Health": weight_health}
     st.markdown("---")
-    force_refresh_checkbox = st.checkbox("Force refresh data from Screener.in", help="This will be slower.")
+    force_refresh_checkbox = st.checkbox("Force refresh data from Screener.in", help="This will be slower and will re-train the model.")
 
 # --- START OF CORRECTED SECTION ---
 
@@ -315,37 +322,55 @@ if st.session_state.analysis_run and st.session_state.stock_ticker_input:
             funda_timer_placeholder = st.empty()
             funda_start_time = time.perf_counter()
             st.header("📈 Long-Term (Fundamental)")
-            with st.spinner("Running fundamental analysis..."):
+            with st.spinner("Running fundamental analysis & AI forecast..."):
                 try:
-                    # --- THIS IS THE CORRECTED LINE ---
-                    data_path = get_or_update_data(
+                    # --- THIS BLOCK IS MODIFIED FOR AI INTEGRATION ---
+                    model_path, data_path = get_or_update_data_and_model(
                         stock_ticker=screener_ticker,
-                        screener_email=st.secrets["SCREENER_USERNAME"],
-                        screener_password=st.secrets["SCREENER_PASSWORD"],
-                        max_age_hours=24,
                         force_refresh=force_refresh_checkbox
                     )
-                    # ---
+
                     live_data = get_stock_data(yfinance_ticker)["info"]
                     if not live_data: st.error(f"Could not fetch live market data for '{yfinance_ticker}'."); st.stop()
+                    
                     processed_df = pd.read_csv(data_path, index_col=0)
                     key_ratios_historical = calculate_historical_ratios(processed_df)
                     final_score, recommendation, score_breakdown = calculate_fundamental_score(live_data, key_ratios_historical, user_weights)
                     conclusion_text = generate_conclusion(score_breakdown)
+                    
                     st.subheader("Recommendation")
                     if "Buy" in recommendation: st.success(f"**{recommendation.upper()}** (Score: {final_score:.1f}/10)")
                     elif "Sell" in recommendation: st.error(f"**{recommendation.upper()}** (Score: {final_score:.1f}/10)")
                     else: st.warning(f"**{recommendation.upper()}** (Score: {final_score:.1f}/10)")
+                    
                     st.markdown(f"**Conclusion:** {conclusion_text}", unsafe_allow_html=True)
+                    st.markdown("---")
+
+                    # --- NEW: AI Sales Forecast Section ---
+                    st.subheader("🤖 AI Sales Forecast")
+                    with st.spinner("Generating AI prediction..."):
+                        model = joblib.load(model_path)
+                        prediction, confidence = make_prediction(model, processed_df)
+                        if "Error" in prediction or "Insufficient" in prediction:
+                            st.warning(f"Could not generate AI forecast: {prediction}")
+                        else:
+                            st.metric(
+                                label="Predicted Next Quarter Sales",
+                                value=prediction,
+                                help=f"Model confidence is approx. {confidence:.0%}"
+                            )
+                            st.info("This is a simple forecast based on historical sales trends and should not be the sole basis for an investment decision.", icon="💡")
+                    
                     st.subheader("Fundamental Trend Projection")
                     if final_score >= 6.0: st.metric("Long-Term Trend", "Positive", delta="Strong Outlook"); st.info("The company's strong fundamentals suggest a positive long-term outlook.", icon="🚀")
                     elif final_score >= 4.5: st.metric("Long-Term Trend", "Neutral", delta="Mixed Outlook"); st.info("The company's fundamentals are average. Monitor for improvements.", icon="↔️")
                     else: st.metric("Long-Term Trend", "Negative", delta="Weak Outlook", delta_color="inverse"); st.info("The company shows fundamental weaknesses, suggesting a challenging outlook.", icon="⚠️")
-                    st.markdown("---")
+                    
                     with st.expander("Show Score Breakdown", expanded=False):
                         st.metric("Valuation Score", f"{score_breakdown['Valuation']['score']:.1f}/10")
                         st.metric("Profitability & Growth Score", f"{score_breakdown['Profitability & Growth']['score']:.1f}/10")
                         st.metric("Financial Health Score", f"{score_breakdown['Health']['score']:.1f}/10")
+
                 except RuntimeError as e:
                     st.error(f"Could not perform fundamental analysis for '{screener_ticker}'.")
                     st.info("This can happen if the company is not available for data export on Screener.in or if the ticker is incorrect.")
@@ -353,7 +378,7 @@ if st.session_state.analysis_run and st.session_state.stock_ticker_input:
                 except Exception as e:
                     st.error(f"An unexpected error occurred during fundamental analysis for '{display_ticker}'."); st.exception(e)
             funda_duration = time.perf_counter() - funda_start_time
-            funda_timer_placeholder.caption(f"Analysis took: {funda_duration:.2f} seconds (Data Sources: Screener.in (Historical) & Yahoo Finance (Live))")
+            funda_timer_placeholder.caption(f"Analysis took: {funda_duration:.2f} seconds (Data Sources: Screener.in & Yahoo Finance)")
 else:
     st.markdown("---")
     st.info("### Welcome to the AI Stock Analyzer 360°!\n\nTo get started, enter a stock ticker or company name in the search bar above and click \"Analyze Stock\".", icon="🚀")
