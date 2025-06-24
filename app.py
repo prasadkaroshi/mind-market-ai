@@ -17,8 +17,7 @@ from predictor import make_prediction
 from run_training import get_or_update_data_and_model
 # ---
 
-# This import is no longer needed directly by app.py, but we leave it for clarity
-from data_manager import get_or_update_data 
+# The import for data_manager has been removed as it is no longer used directly.
 from config import MODELS_DIR
 
 # 1. Page config must be the first Streamlit command
@@ -324,7 +323,6 @@ if st.session_state.analysis_run and st.session_state.stock_ticker_input:
             st.header("📈 Long-Term (Fundamental)")
             with st.spinner("Running fundamental analysis & AI forecast..."):
                 try:
-                    # --- THIS BLOCK IS MODIFIED FOR AI INTEGRATION ---
                     model_path, data_path = get_or_update_data_and_model(
                         stock_ticker=screener_ticker,
                         force_refresh=force_refresh_checkbox
@@ -346,7 +344,6 @@ if st.session_state.analysis_run and st.session_state.stock_ticker_input:
                     st.markdown(f"**Conclusion:** {conclusion_text}", unsafe_allow_html=True)
                     st.markdown("---")
 
-                    # --- NEW: AI Sales Forecast Section ---
                     st.subheader("🤖 AI Sales Forecast")
                     with st.spinner("Generating AI prediction..."):
                         model = joblib.load(model_path)

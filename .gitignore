@@ -1,41 +1,38 @@
-# Python
-# -------------------------------------------------------------------
-# Byte-compiled / optimized / DLL files
+# ===================================
+# Python & Environment
+# ===================================
+# Ignore the Python cache folder
 __pycache__/
-*.py[cod]
-*$py.class
 
-# C extensions
-*.so
-
-# Virtual Environments
+# Ignore the virtual environment folder
 venv/
-.venv/
-env/
-ENV/
 
-# IDE and Editor Folders
-.vscode/
-.idea/
 
-# OS-specific files
-.DS_Store
-Thumbs.db
+# ===================================
+# Sensitive Credentials
+# ===================================
+# Ignore the Streamlit secrets file to prevent committing credentials
+.streamlit/secrets.toml
 
-# Project-specific ignores
-# -------------------------------------------------------------------
-# Ignore all generated data, models, and downloaded files
+
+# ===================================
+# Generated Data & Models
+# ===================================
+# These folders are populated by the scripts and should not be version controlled.
+
+# Ignore downloaded raw Excel files
 data/raw/
+
+# Ignore processed CSV files
 data/processed/
+
+# Ignore all trained machine learning models
 models/
-*.xlsx
-*.joblib
 
-# Ignore runtime logs and lock files
-batch_log.txt
-batch_process.lock
-failed_tickers_log.csv
-full_analysis_results.csv
 
-# Ignore secrets file (best practice if you ever use a .env file for local testing)
-.env
+# ===================================
+# Non-Code / Informational Files
+# ===================================
+# These files are for information only and not part of the core application code.
+FOLDER_STRUCTURE.TXT
+packages.txt
