@@ -4,7 +4,10 @@ import streamlit as st
 from pathlib import Path
 import pandas as pd
 import yfinance as yf
-import pandas_ta as ta
+try:
+    import pandas_ta as ta
+except ModuleNotFoundError:
+    import pandas_ta_classic as ta
 import plotly.graph_objects as go
 import time
 import re
@@ -239,6 +242,11 @@ def run_analysis():
     else: # Handle case where button is clicked with empty input
         st.session_state.analysis_run = False
 
+def clear_analysis():
+    st.session_state.analysis_run = False
+    st.session_state.stock_ticker_input = ""
+    st.session_state.stock_ticker_input_widget = ""
+
 
 header_col1, header_col2 = st.columns([1, 2])
 with header_col1: st.title("🤖 AI Stock Analyzer 360°")
@@ -250,8 +258,7 @@ with header_col2:
             "Enter NSE Ticker or Company Name",
             key="stock_ticker_input_widget", # This is the widget's unique key
             label_visibility="collapsed",
-            placeholder="e.g., INFY or VIP INDUSTRIES",
-            on_change=run_analysis # Optional: Run analysis on pressing Enter
+            placeholder="e.g., INFY or VIP INDUSTRIES"
         )
     with form_col2:
         # The button's on_click now triggers the state update via the callback
@@ -261,8 +268,21 @@ with header_col2:
             use_container_width=True,
             type="primary"
         )
+        st.button(
+            "Clear Results",
+            on_click=clear_analysis,
+            use_container_width=True
+        )
 
 # --- END OF CORRECTED SECTION ---
+
+if not st.session_state.analysis_run:
+    st.info(
+        "📥 **Stock list:** Download the latest NSE equity list from "
+        "[NSE India](https://archives.nseindia.com/content/equities/EQUITY_L.csv) "
+        "and save it in this project folder as `EQUITY_L.csv`.",
+        icon="📋"
+    )
 
 
 if st.session_state.analysis_run and st.session_state.stock_ticker_input:

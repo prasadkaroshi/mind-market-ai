@@ -1,16 +1,16 @@
 # config.py
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
-# --- Credentials have been REMOVED from this file ---
-# They are now handled by Streamlit Secrets and passed as environment variables.
+BASE_DIR: Path = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
 
 # URLs
-SCREENER_LOGIN_URL: str = "https://www.screener.in/login/"
-SCREENER_DASHBOARD_URL: str = "https://www.screener.in/dash/"
+SCREENER_LOGIN_URL: str = os.getenv("SCREENER_LOGIN_URL", "https://www.screener.in/login/")
+SCREENER_DASHBOARD_URL: str = os.getenv("SCREENER_DASHBOARD_URL", "https://www.screener.in/dash/")
 
 # --- File Paths ---
-BASE_DIR: Path = Path(__file__).resolve().parent
 MODELS_DIR: Path = BASE_DIR / "models"
 DATA_DIR: Path = BASE_DIR / "data"
 
