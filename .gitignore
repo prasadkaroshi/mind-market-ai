@@ -7,6 +7,9 @@ __pycache__/
 # Ignore the virtual environment folder
 venv/
 .venv/
+.npm-cache/
+frontend/node_modules/
+frontend/dist/
 
 
 # ===================================

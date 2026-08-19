@@ -1,0 +1,108 @@
+MIND MARKET AI - FIRST TIME RUN GUIDE
+=====================================
+
+1. Open Terminal and go to the project folder
+
+cd /Users/prasadkaroshi/Documents/ai_stock_analyzer_tool/mind-market-ai
+
+2. Activate the Python environment
+
+source .venv/bin/activate
+
+If .venv does not exist, create it first:
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+3. Install Python dependencies
+
+python -m pip install -r requirements-api.txt
+python -m pip install streamlit yfinance pandas-ta-classic plotly joblib scikit-learn openpyxl python-dotenv
+python -m playwright install chromium
+
+4. Configure Screener.in credentials
+
+Open the .env file in this project and set your real credentials:
+
+SCREENER_LOGIN_URL=https://www.screener.in/login/
+SCREENER_DASHBOARD_URL=https://www.screener.in/dash/
+SCREENER_EMAIL=your-screener-email
+SCREENER_PASSWORD=your-screener-password
+
+Keep the .env file private. Do not commit it to Git.
+
+5. Start the FastAPI backend
+
+Open Terminal 1:
+
+cd /Users/prasadkaroshi/Documents/ai_stock_analyzer_tool/mind-market-ai
+source .venv/bin/activate
+uvicorn api:app --host 127.0.0.1 --port 8000
+
+Keep this Terminal running.
+
+EVERY TIME YOU RUN THE APP
+==========================
+
+After the first-time setup is complete, use these two terminals every time:
+
+Terminal 1 - backend:
+
+cd /Users/prasadkaroshi/Documents/ai_stock_analyzer_tool/mind-market-ai
+source .venv/bin/activate
+uvicorn api:app --host 127.0.0.1 --port 8000
+
+Terminal 2 - frontend:
+
+cd /Users/prasadkaroshi/Documents/ai_stock_analyzer_tool/mind-market-ai/frontend
+npm run dev -- --host 127.0.0.1
+
+Then open:
+
+http://127.0.0.1:5173/
+
+Keep both Terminals running while using the application.
+
+6. Start the React frontend
+
+Open Terminal 2:
+
+cd /Users/prasadkaroshi/Documents/ai_stock_analyzer_tool/mind-market-ai/frontend
+npm install
+npm run dev -- --host 127.0.0.1
+
+7. Open the application
+
+Open this URL in your browser:
+
+http://127.0.0.1:5173/
+
+8. Analyze a stock
+
+- Enter an NSE ticker, for example TCS, INFY, or RELIANCE.
+- Press Tab or Enter, or click Analyze.
+- The page automatically scrolls to the results.
+- Use the 1M, 3M, 6M, 1Y, and 2Y buttons to change the chart timeframe.
+
+9. Optional: run the original Streamlit application
+
+From the project folder:
+
+source .venv/bin/activate
+python run_app.py
+
+Then open the localhost URL printed in the Terminal, usually:
+
+http://localhost:8501
+
+Troubleshooting
+---------------
+
+If the browser says "Failed to fetch":
+- Confirm the FastAPI Terminal is still running.
+- Confirm the API is available at http://127.0.0.1:8000/api/health
+- The health response should be: {"status":"ok"}
+
+If a package is missing, activate .venv and install it with:
+
+python -m pip install PACKAGE_NAME

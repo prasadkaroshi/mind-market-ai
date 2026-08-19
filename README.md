@@ -65,3 +65,25 @@ The application follows a simple yet powerful workflow when you request an analy
 *    [yfinance](https://pypi.org/project/yfinance/), [pandas-ta](https://github.com/twopirllc/pandas-ta)
 *   **Visualization**: [Plotly](https://plotly.com/)
 *   **Core Language**: Python 3.10+
+
+## React + FastAPI interface
+
+The original Streamlit application remains available through `run_app.py`. A new React interface uses the same Python market-analysis direction through a FastAPI backend.
+
+Start the backend in one terminal:
+
+```bash
+source .venv/bin/activate
+pip install -r requirements-api.txt
+uvicorn api:app --reload --port 8000
+```
+
+Start the frontend in a second terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open the Vite URL shown in the terminal, usually `http://localhost:5173`.

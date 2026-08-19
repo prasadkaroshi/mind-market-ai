@@ -1,6 +1,7 @@
 # app.py (Final - with Secrets Management, Corrected Search, and Integrated AI Prediction)
 
 import streamlit as st
+import streamlit.components.v1 as components
 from pathlib import Path
 import pandas as pd
 import yfinance as yf
@@ -286,6 +287,18 @@ if not st.session_state.analysis_run:
 
 
 if st.session_state.analysis_run and st.session_state.stock_ticker_input:
+    st.markdown('<div id="analysis-results"></div>', unsafe_allow_html=True)
+    components.html(
+        """
+        <script>
+        window.setTimeout(function () {
+            var target = window.parent.document.getElementById('analysis-results');
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+        </script>
+        """,
+        height=0,
+    )
     found_ticker = None
     if ticker_df is not None:
         user_input = st.session_state.stock_ticker_input.strip()
